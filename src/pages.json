@@ -1,0 +1,108 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "星空",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/user/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/tools/index",
+      "style": {
+        "navigationBarTitleText": "功能区",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/constellation/index",
+      "style": {
+        "navigationBarTitleText": "星座运势",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/starmap/index",
+      "style": {
+        "navigationBarTitleText": "星图",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/moon/index",
+      "style": {
+        "navigationBarTitleText": "月相",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/guide-generator/index",
+      "style": {
+        "navigationBarTitleText": "攻略生成",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/my-guides/index",
+      "style": {
+        "navigationBarTitleText": "我的攻略",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/guide-detail/index",
+      "style": {
+        "navigationBarTitleText": "攻略详情",
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#0a0e27",
+    "backgroundColor": "#0a0e27",
+    "app-plus": {
+      "background": "#0a0e27"
+    }
+  },
+  "tabBar": {
+    "color": "#8b9dc3",
+    "selectedColor": "#64b5f6",
+    "backgroundColor": "#0f1535",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/tools/index",
+        "text": "功能",
+        "iconPath": "static/tabbar/tools.png",
+        "selectedIconPath": "static/tabbar/tools-active.png"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/user-active.png"
+      }
+    ]
+  }
+}
