@@ -29,13 +29,6 @@
       }
     },
     {
-      "path": "pages/constellation/index",
-      "style": {
-        "navigationBarTitleText": "星座运势",
-        "navigationStyle": "custom"
-      }
-    },
-    {
       "path": "pages/starmap/index",
       "style": {
         "navigationBarTitleText": "星图",

@@ -18,55 +18,104 @@
       </view>
     </view>
     
-    <!-- 今日运势卡片 -->
-    <view class="fortune-card glass-card">
-      <view class="fortune-header">
-        <text class="fortune-title">✨ 今日星运</text>
-        <text class="fortune-constellation">{{ userInfo.constellation || '双鱼座' }}</text>
-      </view>
-      
-      <view class="fortune-content">
-        <view class="fortune-item">
-          <text class="fortune-label">综合运势</text>
-          <view class="fortune-stars">
-            <text v-for="n in 5" :key="n" class="star-icon">{{ n <= fortune.overall ? '★' : '☆' }}</text>
+    <!-- 核心功能：AI 攻略生成 -->
+    <view class="hero-section">
+      <view class="hero-card" @click="navigateTo('/pages/guide-generator/index')">
+        <view class="hero-bg">
+          <view class="gradient-orb orb-1"></view>
+          <view class="gradient-orb orb-2"></view>
+        </view>
+        <view class="hero-content">
+          <view class="hero-badge">
+            <text class="badge-text">✨ AI 智能生成</text>
+          </view>
+          <text class="hero-title">一键生成专属攻略</text>
+          <text class="hero-desc">输入目的地或美食，AI 为你定制详细旅游/探店攻略</text>
+          <view class="hero-btn">
+            <text class="btn-text">立即体验</text>
+            <text class="btn-arrow">→</text>
           </view>
         </view>
-        
-        <view class="fortune-item">
-          <text class="fortune-label">幸运色</text>
-          <view class="lucky-color" :style="{ background: fortune.color }">
-            <text class="color-name">{{ fortune.colorName }}</text>
-          </view>
-        </view>
-        
-        <view class="fortune-item">
-          <text class="fortune-label">幸运数字</text>
-          <text class="lucky-number">{{ fortune.number }}</text>
-        </view>
-      </view>
-      
-      <view class="fortune-advice">
-        <text class="advice-text">💫 {{ fortune.advice }}</text>
       </view>
     </view>
     
-    <!-- 核心功能入口 -->
-    <view class="tools-section">
-      <text class="section-title">星空工具箱</text>
-      
-      <view class="tools-grid">
-        <view 
-          v-for="tool in mainTools" 
-          :key="tool.id"
-          class="tool-item glass-card"
-          @click="navigateTo(tool.path)"
-        >
-          <view class="tool-icon" :style="{ background: tool.gradient }">
-            <text class="icon-text">{{ tool.icon }}</text>
+    <!-- 快捷功能 -->
+    <view class="quick-section">
+      <view class="quick-grid">
+        <view class="quick-item glass-card" @click="navigateTo('/pages/guide-generator/index')">
+          <view class="quick-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+            <text>✈️</text>
           </view>
-          <text class="tool-name">{{ tool.name }}</text>
-          <text class="tool-desc">{{ tool.desc }}</text>
+          <text class="quick-name">旅游攻略</text>
+        </view>
+        <view class="quick-item glass-card" @click="navigateTo('/pages/guide-generator/index')">
+          <view class="quick-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+            <text>🍜</text>
+          </view>
+          <text class="quick-name">美食探店</text>
+        </view>
+        <view class="quick-item glass-card" @click="navigateTo('/pages/my-guides/index')">
+          <view class="quick-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+            <text>📚</text>
+          </view>
+          <text class="quick-name">我的攻略</text>
+        </view>
+        <view class="quick-item glass-card" @click="navigateTo('/pages/tools/index')">
+          <view class="quick-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
+            <text>🌌</text>
+          </view>
+          <text class="quick-name">天文工具</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 热门目的地 -->
+    <view class="destinations-section">
+      <view class="section-header">
+        <text class="section-title">热门目的地</text>
+        <text class="section-more" @click="navigateTo('/pages/guide-generator/index')">更多 →</text>
+      </view>
+      
+      <scroll-view scroll-x class="destinations-scroll">
+        <view 
+          v-for="dest in hotDestinations" 
+          :key="dest.name"
+          class="destination-card"
+          @click="goToGenerate(dest.name)"
+        >
+          <view class="destination-bg" :style="{ background: dest.gradient }">
+            <text class="destination-icon">{{ dest.icon }}</text>
+          </view>
+          <text class="destination-name">{{ dest.name }}</text>
+          <text class="destination-desc">{{ dest.desc }}</text>
+        </view>
+      </scroll-view>
+    </view>
+    
+    <!-- 天文小工具 -->
+    <view class="astro-section">
+      <view class="section-header">
+        <text class="section-title">天文观测</text>
+      </view>
+      
+      <view class="astro-grid">
+        <view class="astro-item glass-card" @click="navigateTo('/pages/starmap/index')">
+          <view class="astro-icon-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+            <text class="astro-icon">🌌</text>
+          </view>
+          <view class="astro-info">
+            <text class="astro-name">实时星图</text>
+            <text class="astro-desc">探索夜空奥秘</text>
+          </view>
+        </view>
+        <view class="astro-item glass-card" @click="navigateTo('/pages/moon/index')">
+          <view class="astro-icon-wrapper" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+            <text class="astro-icon">🌙</text>
+          </view>
+          <view class="astro-info">
+            <text class="astro-name">月相查询</text>
+            <text class="astro-desc">了解月亮变化</text>
+          </view>
         </view>
       </view>
     </view>
@@ -74,7 +123,6 @@
     <!-- 今日天文事件 -->
     <view class="events-section">
       <text class="section-title">今日天象</text>
-      
       <view class="event-card glass-card">
         <view class="event-icon">🌙</view>
         <view class="event-info">
@@ -98,8 +146,7 @@ import StarBackground from '@/components/StarBackground.vue'
 const isLogin = ref(false)
 const userInfo = ref({
   avatar: '',
-  nickname: '',
-  constellation: '双鱼座'
+  nickname: ''
 })
 
 // 问候语
@@ -118,49 +165,14 @@ const currentDate = computed(() => {
   return `${date.getMonth() + 1}月${date.getDate()}日 ${weekDays[date.getDay()]}`
 })
 
-// 今日运势
-const fortune = ref({
-  overall: 4,
-  color: '#64b5f6',
-  colorName: '星空蓝',
-  number: 7,
-  advice: '今日适合冥想静思，夜晚的星空会给你带来灵感。'
-})
-
-// 核心工具
-const mainTools = [
-  {
-    id: 1,
-    name: '星座运势',
-    desc: '查看今日星运',
-    icon: '♈',
-    path: '/pages/constellation/index',
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-  },
-  {
-    id: 2,
-    name: '实时星图',
-    desc: '探索夜空奥秘',
-    icon: '🌌',
-    path: '/pages/starmap/index',
-    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-  },
-  {
-    id: 3,
-    name: '月相查询',
-    desc: '了解月亮变化',
-    icon: '🌙',
-    path: '/pages/moon/index',
-    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-  },
-  {
-    id: 4,
-    name: '更多工具',
-    desc: '探索全部功能',
-    icon: '✨',
-    path: '/pages/tools/index',
-    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-  }
+// 热门目的地
+const hotDestinations = [
+  { name: '成都', icon: '🐼', desc: '美食之都', gradient: 'linear-gradient(135deg, #ff6b6b, #ee5a6f)' },
+  { name: '三亚', icon: '🏖️', desc: '热带海滨', gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
+  { name: '丽江', icon: '🏔️', desc: '古城风情', gradient: 'linear-gradient(135deg, #43e97b, #38f9d7)' },
+  { name: '大理', icon: '🌸', desc: '风花雪月', gradient: 'linear-gradient(135deg, #fa709a, #fee140)' },
+  { name: '西安', icon: '🏛️', desc: '历史古都', gradient: 'linear-gradient(135deg, #667eea, #764ba2)' },
+  { name: '重庆', icon: '🌉', desc: '山城夜景', gradient: 'linear-gradient(135deg, #f093fb, #f5576c)' }
 ]
 
 // 今日天象
@@ -185,6 +197,12 @@ const navigateTo = (path: string) => {
   } else {
     uni.navigateTo({ url: path })
   }
+}
+
+const goToGenerate = (destination: string) => {
+  uni.navigateTo({ 
+    url: `/pages/guide-generator/index?keyword=${encodeURIComponent(destination)}`
+  })
 }
 
 onMounted(() => {
@@ -260,155 +278,255 @@ onMounted(() => {
   z-index: -1;
 }
 
-/* 运势卡片 */
-.fortune-card {
-  padding: 40rpx;
+/* 核心功能区 */
+.hero-section {
   margin-bottom: 40rpx;
 }
 
-.fortune-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30rpx;
-  padding-bottom: 20rpx;
-  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+.hero-card {
+  position: relative;
+  border-radius: 32rpx;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
+  border: 2rpx solid rgba(102, 126, 234, 0.4);
 }
 
-.fortune-title {
-  font-size: 32rpx;
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80rpx);
+  opacity: 0.5;
+}
+
+.orb-1 {
+  width: 400rpx;
+  height: 400rpx;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  top: -150rpx;
+  right: -100rpx;
+}
+
+.orb-2 {
+  width: 300rpx;
+  height: 300rpx;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  bottom: -100rpx;
+  left: -100rpx;
+}
+
+.hero-content {
+  position: relative;
+  padding: 50rpx;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  padding: 12rpx 24rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 30rpx;
+  margin-bottom: 25rpx;
+}
+
+.badge-text {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.hero-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+  display: block;
+  text-shadow: 0 0 30rpx rgba(100, 181, 246, 0.5);
+}
+
+.hero-desc {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  margin-bottom: 35rpx;
+  display: block;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 24rpx 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50rpx;
+  box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.4);
+}
+
+.btn-text {
+  font-size: 30rpx;
+  color: #ffffff;
   font-weight: 600;
+  margin-right: 15rpx;
+}
+
+.btn-arrow {
+  font-size: 32rpx;
   color: #ffffff;
 }
 
-.fortune-constellation {
-  font-size: 26rpx;
-  color: #64b5f6;
-  background: rgba(100, 181, 246, 0.15);
-  padding: 8rpx 20rpx;
-  border-radius: 30rpx;
+/* 快捷功能 */
+.quick-section {
+  margin-bottom: 50rpx;
 }
 
-.fortune-content {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30rpx;
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
 }
 
-.fortune-item {
+.quick-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 30rpx 20rpx;
 }
 
-.fortune-label {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 15rpx;
-}
-
-.fortune-stars {
-  display: flex;
-  gap: 8rpx;
-}
-
-.star-icon {
-  font-size: 28rpx;
-  color: #ffd700;
-  text-shadow: 0 0 10rpx rgba(255, 215, 0, 0.5);
-}
-
-.lucky-color {
-  width: 80rpx;
-  height: 40rpx;
-  border-radius: 20rpx;
+.quick-icon {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20rpx rgba(100, 181, 246, 0.3);
+  margin-bottom: 15rpx;
+  font-size: 44rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.2);
 }
 
-.color-name {
-  font-size: 20rpx;
+.quick-name {
+  font-size: 24rpx;
   color: #ffffff;
-  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.3);
+  font-weight: 500;
 }
 
-.lucky-number {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #64b5f6;
-  text-shadow: 0 0 20rpx rgba(100, 181, 246, 0.5);
+/* 热门目的地 */
+.destinations-section {
+  margin-bottom: 50rpx;
 }
 
-.fortune-advice {
-  padding: 20rpx;
-  background: rgba(100, 181, 246, 0.1);
-  border-radius: 16rpx;
-  border-left: 4rpx solid #64b5f6;
-}
-
-.advice-text {
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.6;
-}
-
-/* 工具区 */
-.tools-section {
-  margin-bottom: 40rpx;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25rpx;
 }
 
 .section-title {
   font-size: 36rpx;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 30rpx;
-  display: block;
   text-shadow: 0 0 20rpx rgba(100, 181, 246, 0.3);
 }
 
-.tools-grid {
+.section-more {
+  font-size: 26rpx;
+  color: #64b5f6;
+}
+
+.destinations-scroll {
+  white-space: nowrap;
+}
+
+.destination-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx;
+  margin-right: 20rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  min-width: 160rpx;
+}
+
+.destination-bg {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15rpx;
+}
+
+.destination-icon {
+  font-size: 50rpx;
+}
+
+.destination-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 5rpx;
+}
+
+.destination-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 天文观测 */
+.astro-section {
+  margin-bottom: 50rpx;
+}
+
+.astro-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
 }
 
-.tool-item {
-  padding: 30rpx;
+.astro-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  transition: transform 0.3s ease;
+  padding: 30rpx;
 }
 
-.tool-item:active {
-  transform: scale(0.98);
-}
-
-.tool-icon {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 30rpx;
+.astro-icon-wrapper {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20rpx;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.3);
+  margin-right: 25rpx;
 }
 
-.icon-text {
-  font-size: 48rpx;
+.astro-icon {
+  font-size: 44rpx;
 }
 
-.tool-name {
+.astro-info {
+  flex: 1;
+}
+
+.astro-name {
   font-size: 30rpx;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 10rpx;
+  margin-bottom: 8rpx;
+  display: block;
 }
 
-.tool-desc {
+.astro-desc {
   font-size: 24rpx;
   color: rgba(255, 255, 255, 0.5);
 }
