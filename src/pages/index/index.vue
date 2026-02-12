@@ -389,32 +389,41 @@ onMounted(() => {
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .quick-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30rpx 20rpx;
+  justify-content: flex-start;
+  padding: 24rpx 10rpx;
+  text-align: center;
 }
 
 .quick-icon {
-  width: 90rpx;
-  height: 90rpx;
+  width: 88rpx;
+  height: 88rpx;
   border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 15rpx;
-  font-size: 44rpx;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.2);
+  margin-bottom: 12rpx;
+  font-size: 42rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease;
+}
+
+.quick-item:active .quick-icon {
+  transform: scale(0.95);
 }
 
 .quick-name {
   font-size: 24rpx;
   color: #ffffff;
   font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
 }
 
 /* 热门目的地 */
@@ -497,38 +506,45 @@ onMounted(() => {
 .astro-item {
   display: flex;
   align-items: center;
-  padding: 30rpx;
+  padding: 28rpx 24rpx;
 }
 
 .astro-icon-wrapper {
-  width: 90rpx;
-  height: 90rpx;
-  border-radius: 24rpx;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 22rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 25rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
 }
 
 .astro-icon {
-  font-size: 44rpx;
+  font-size: 42rpx;
+  line-height: 1;
 }
 
 .astro-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .astro-name {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
   display: block;
+  line-height: 1.3;
 }
 
 .astro-desc {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.3;
 }
 
 /* 天象区 */
