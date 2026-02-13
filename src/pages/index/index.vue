@@ -1,6 +1,28 @@
 <template>
   <view class="index-page">
-    <StarBackground />
+    <!-- 动态星轨背景 -->
+    <view class="star-trails">
+      <view class="trail trail-1"></view>
+      <view class="trail trail-2"></view>
+      <view class="trail trail-3"></view>
+      <view class="floating-stars">
+        <view class="star s1"></view>
+        <view class="star s2"></view>
+        <view class="star s3"></view>
+        <view class="star s4"></view>
+        <view class="star s5"></view>
+        <view class="star s6"></view>
+        <view class="star s7"></view>
+        <view class="star s8"></view>
+        <view class="star s9"></view>
+        <view class="star s10"></view>
+        <view class="star s11"></view>
+        <view class="star s12"></view>
+        <view class="star s13"></view>
+        <view class="star s14"></view>
+        <view class="star s15"></view>
+      </view>
+    </view>
     
     <!-- 顶部欢迎区 -->
     <view class="header-section">
@@ -124,7 +146,15 @@
     <view class="events-section">
       <text class="section-title">今日天象</text>
       <view class="event-card glass-card">
-        <view class="event-icon">🌙</view>
+        <view class="event-icon-wrapper">
+          <text class="event-icon">🌙</text>
+          <view class="event-sparkles">
+            <view class="sparkle sp1"></view>
+            <view class="sparkle sp2"></view>
+            <view class="sparkle sp3"></view>
+            <view class="sparkle sp4"></view>
+          </view>
+        </view>
         <view class="event-info">
           <text class="event-title">{{ todayEvent.title }}</text>
           <text class="event-time">{{ todayEvent.time }}</text>
@@ -224,7 +254,89 @@ onMounted(() => {
   padding: 40rpx 30rpx;
   position: relative;
   z-index: 1;
+  background: linear-gradient(135deg, #141E61 0%, #511EA2 50%, #1a1f4b 100%);
 }
+
+/* ==================== 动态星轨背景 ==================== */
+.star-trails {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.trail {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60rpx);
+  opacity: 0.3;
+}
+
+.trail-1 {
+  width: 600rpx;
+  height: 600rpx;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  top: -200rpx;
+  right: -100rpx;
+  animation: float 10s ease-in-out infinite;
+}
+
+.trail-2 {
+  width: 500rpx;
+  height: 500rpx;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  bottom: 10%;
+  left: -150rpx;
+  animation: float 12s ease-in-out infinite reverse;
+}
+
+.trail-3 {
+  width: 400rpx;
+  height: 400rpx;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  top: 40%;
+  right: -100rpx;
+  animation: float 8s ease-in-out infinite;
+}
+
+/* 浮动星星 */
+.floating-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.star {
+  position: absolute;
+  width: 4rpx;
+  height: 4rpx;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10rpx #ffffff, 0 0 20rpx rgba(255,255,255,0.5);
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.star.s1 { top: 10%; left: 15%; animation-delay: 0s; }
+.star.s2 { top: 20%; left: 80%; animation-delay: 0.3s; }
+.star.s3 { top: 35%; left: 25%; animation-delay: 0.6s; }
+.star.s4 { top: 15%; left: 60%; animation-delay: 0.9s; }
+.star.s5 { top: 45%; left: 10%; animation-delay: 1.2s; }
+.star.s6 { top: 60%; left: 70%; animation-delay: 1.5s; }
+.star.s7 { top: 75%; left: 30%; animation-delay: 1.8s; }
+.star.s8 { top: 25%; left: 45%; animation-delay: 2.1s; }
+.star.s9 { top: 50%; left: 85%; animation-delay: 2.4s; }
+.star.s10 { top: 80%; left: 55%; animation-delay: 2.7s; }
+.star.s11 { top: 5%; left: 40%; animation-delay: 0.5s; }
+.star.s12 { top: 65%; left: 15%; animation-delay: 1.1s; }
+.star.s13 { top: 30%; left: 90%; animation-delay: 1.7s; }
+.star.s14 { top: 85%; left: 75%; animation-delay: 2.3s; }
+.star.s15 { top: 55%; left: 50%; animation-delay: 0.8s; }
 
 /* 顶部欢迎区 */
 .header-section {
@@ -289,6 +401,34 @@ onMounted(() => {
   overflow: hidden;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
   border: 2rpx solid rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.hero-card:active {
+  transform: translateY(-5rpx);
+  box-shadow: 0 20rpx 60rpx rgba(102, 126, 234, 0.3);
+  border-color: rgba(240, 147, 251, 0.6);
+}
+
+/* 流光边框效果 */
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: -2rpx;
+  left: -2rpx;
+  right: -2rpx;
+  bottom: -2rpx;
+  border-radius: 34rpx;
+  background: linear-gradient(135deg, #667eea, #f093fb, #667eea, #764ba2);
+  background-size: 300% 300%;
+  animation: gradient-shift 4s ease infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.hero-card:active::before {
+  opacity: 1;
 }
 
 .hero-bg {
@@ -411,11 +551,29 @@ onMounted(() => {
   margin-bottom: 12rpx;
   font-size: 42rpx;
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.25);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 流光hover效果 */
+.quick-icon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s;
 }
 
 .quick-item:active .quick-icon {
   transform: scale(0.95);
+}
+
+.quick-item:active .quick-icon::after {
+  left: 100%;
 }
 
 .quick-name {
@@ -550,6 +708,8 @@ onMounted(() => {
 /* 天象区 */
 .events-section {
   margin-bottom: 40rpx;
+  position: relative;
+  z-index: 1;
 }
 
 .event-card {
@@ -557,12 +717,49 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 20rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-icon-wrapper {
+  position: relative;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .event-icon {
   font-size: 60rpx;
   line-height: 1;
+  position: relative;
+  z-index: 1;
+  animation: breathe 3s ease-in-out infinite;
 }
+
+/* 星星闪烁效果 */
+.event-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sparkle {
+  position: absolute;
+  width: 8rpx;
+  height: 8rpx;
+  background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.sparkle.sp1 { top: 0; left: 20%; animation-delay: 0s; }
+.sparkle.sp2 { top: 30%; right: 0; animation-delay: 0.5s; }
+.sparkle.sp3 { bottom: 10%; left: 40%; animation-delay: 1s; }
+.sparkle.sp4 { top: 50%; left: 10%; animation-delay: 1.5s; }
 
 .event-info {
   flex: 1;

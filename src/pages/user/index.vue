@@ -14,6 +14,7 @@
       <view class="avatar-container">
         <view class="avatar-glow-ring"></view>
         <view class="avatar-glow-ring ring-2"></view>
+        <view class="avatar-glow-ring ring-3"></view>
         <image 
           class="avatar" 
           :src="userInfo.avatar || '/static/images/default-avatar.png'" 
@@ -47,6 +48,13 @@
       <view class="exp-bar-bg">
         <view class="exp-bar-fill" :style="{ width: expPercent + '%' }">
           <view class="exp-shine"></view>
+          <!-- 星星碎片动画 -->
+          <view class="exp-sparkles">
+            <view class="exp-sparkle es1">✦</view>
+            <view class="exp-sparkle es2">✧</view>
+            <view class="exp-sparkle es3">✦</view>
+            <view class="exp-sparkle es4">✧</view>
+          </view>
         </view>
       </view>
       <view class="exp-text">
@@ -407,8 +415,15 @@ onMounted(() => {
   border: 4rpx solid rgba(255, 255, 255, 0.3);
   position: relative;
   z-index: 2;
+  transition: all 0.3s ease;
 }
 
+.avatar-container:active .avatar {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* 升级版光环效果 - 呼吸+旋转 */
 .avatar-glow-ring {
   position: absolute;
   top: -10rpx;
@@ -419,7 +434,7 @@ onMounted(() => {
   border: 3rpx solid transparent;
   border-top-color: #667eea;
   border-right-color: #764ba2;
-  animation: rotate 4s linear infinite;
+  animation: rotate 4s linear infinite, ring-glow 3s ease-in-out infinite;
   z-index: 1;
 }
 
@@ -430,8 +445,21 @@ onMounted(() => {
   bottom: -20rpx;
   border-top-color: #f093fb;
   border-left-color: #f5576c;
-  animation: rotate 6s linear infinite reverse;
-  opacity: 0.5;
+  animation: rotate 6s linear infinite reverse, ring-glow 4s ease-in-out infinite 0.5s;
+  opacity: 0.6;
+}
+
+/* 新增第三层光环 */
+.avatar-glow-ring.ring-3 {
+  top: -30rpx;
+  left: -30rpx;
+  right: -30rpx;
+  bottom: -30rpx;
+  border: 2rpx solid transparent;
+  border-bottom-color: #4facfe;
+  border-right-color: #00f2fe;
+  animation: rotate 8s linear infinite, ring-glow 5s ease-in-out infinite 1s;
+  opacity: 0.4;
 }
 
 @keyframes rotate {
@@ -529,8 +557,9 @@ onMounted(() => {
   height: 16rpx;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8rpx;
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 12rpx;
+  position: relative;
 }
 
 .exp-bar-fill {
@@ -539,6 +568,8 @@ onMounted(() => {
   border-radius: 8rpx;
   position: relative;
   transition: width 0.5s ease;
+  overflow: visible;
+  box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.4);
 }
 
 .exp-shine {
@@ -549,6 +580,57 @@ onMounted(() => {
   bottom: 0;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   animation: shine 2s infinite;
+}
+
+/* 星星碎片溢出动画 */
+.exp-sparkles {
+  position: absolute;
+  top: 50%;
+  right: -10rpx;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.exp-sparkle {
+  position: absolute;
+  font-size: 16rpx;
+  color: #fee140;
+  text-shadow: 0 0 10rpx #fee140;
+  animation: sparkle-overflow 2s ease-in-out infinite;
+}
+
+.exp-sparkle.es1 { 
+  top: -20rpx; 
+  right: 0;
+  animation-delay: 0s; 
+}
+.exp-sparkle.es2 { 
+  top: -5rpx; 
+  right: -15rpx;
+  animation-delay: 0.3s; 
+  font-size: 12rpx;
+}
+.exp-sparkle.es3 { 
+  top: 5rpx; 
+  right: 5rpx;
+  animation-delay: 0.6s; 
+}
+.exp-sparkle.es4 { 
+  top: 15rpx; 
+  right: -10rpx;
+  animation-delay: 0.9s; 
+  font-size: 10rpx;
+}
+
+@keyframes sparkle-overflow {
+  0%, 100% { 
+    opacity: 0; 
+    transform: translateY(0) scale(0) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: translateY(-10rpx) scale(1) rotate(180deg); 
+  }
 }
 
 @keyframes shine {
@@ -751,6 +833,24 @@ onMounted(() => {
 .badge-item.unlocked {
   opacity: 1;
   transform: scale(1);
+  animation: fly-in 0.6s ease-out;
+}
+
+/* 解锁徽章的光效 */
+.badge-item.unlocked .badge-icon-wrapper {
+  animation: badge-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 20rpx rgba(255, 255, 255, 0.3);
+}
+
+@keyframes badge-glow {
+  0%, 100% { 
+    box-shadow: 0 0 15rpx rgba(255, 255, 255, 0.2);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 30rpx rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+  }
 }
 
 .badge-icon-wrapper {
