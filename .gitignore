@@ -37,3 +37,4 @@ unpackage/
 # Temporary files
 *.tmp
 *.temp
+/package-lock.json
