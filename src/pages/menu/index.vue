@@ -112,22 +112,14 @@ const goToConfig = () => {
   uni.navigateTo({ url: '/pages/menu/config' });
 };
 
-// 导航到随机推荐页（暂未实现，这里先提示）
+// 导航到随机推荐页
 const goToRandom = () => {
-  uni.showToast({
-    title: '随机推荐页面开发中...',
-    icon: 'none',
-    duration: 2000
-  });
+  uni.navigateTo({ url: '/pages/menu/random' });
 };
 
-// 处理菜品点击
+// 处理菜品点击，进入点餐页
 const handleItemClick = (item: FoodItem) => {
-  uni.showToast({
-    title: `选中了 ${item.name}`,
-    icon: 'none',
-    duration: 1000
-  });
+  uni.navigateTo({ url: '/pages/menu/order' });
 };
 
 // 监听页面显示（返回时刷新）

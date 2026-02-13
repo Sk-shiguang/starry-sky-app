@@ -62,6 +62,34 @@
         "navigationBarTitleText": "攻略详情",
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/menu/index",
+      "style": {
+        "navigationBarTitleText": "今天吃什么",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/menu/config",
+      "style": {
+        "navigationBarTitleText": "菜单配置",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/menu/random",
+      "style": {
+        "navigationBarTitleText": "随机推荐",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/menu/order",
+      "style": {
+        "navigationBarTitleText": "智能点餐",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {
