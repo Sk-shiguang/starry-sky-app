@@ -177,7 +177,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import MenuAPI, { type FoodItem } from '../../../api/menu';
+import MenuAPI, { type FoodItem } from '../../api/menu';
 
 // 分类定义
 const categories = [

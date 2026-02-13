@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import type { FoodItem } from '../api/menu';
+import type { FoodItem } from '../../api/menu';
 
 interface Props {
   item: FoodItem;
