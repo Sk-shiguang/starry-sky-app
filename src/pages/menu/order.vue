@@ -378,19 +378,21 @@ onUnmounted(() => {
 }
 
 .back-button {
-  width: 60rpx;
-  height: 60rpx;
+  width: 70rpx;
+  height: 70rpx;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   border: 1rpx solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  font-size: 32rpx;
+  font-size: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
 }
 
 .back-button:active {

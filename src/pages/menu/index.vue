@@ -8,6 +8,11 @@
       <view v-for="(star, index) in stars" :key="index" class="star" :style="getStarStyle(index)"></view>
     </view>
 
+    <!-- 返回按钮 -->
+    <view class="back-button-wrapper">
+      <button class="back-button" @click="goBack">←</button>
+    </view>
+
     <!-- 页面内容 -->
     <view class="page-content">
       <!-- 页面标题 -->
@@ -105,6 +110,11 @@ const getStarStyle = (index: number) => {
 // 刷新菜品列表
 const refreshItems = () => {
   items.value = MenuAPI.getAll();
+};
+
+// 返回上一页
+const goBack = () => {
+  uni.navigateBack({ delta: 1 });
 };
 
 // 导航到配置页
@@ -213,11 +223,44 @@ onUnmounted(() => {
   50% { opacity: 1; transform: scale(1.3); }
 }
 
+/* 返回按钮 */
+.back-button-wrapper {
+  position: fixed;
+  top: 40rpx;
+  left: 30rpx;
+  z-index: 100;
+}
+
+.back-button {
+  width: 70rpx;
+  height: 70rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+}
+
+.back-button:active {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: scale(0.95);
+}
+
 /* 页面内容 */
 .page-content {
   position: relative;
   z-index: 1;
   padding: 30rpx;
+  padding-top: 100rpx;
   min-height: 100vh;
 }
 

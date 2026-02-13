@@ -37,30 +37,50 @@
           <view class="empty-hint">点击"➕"添加您的第一道菜品</view>
         </view>
 
-        <!-- 菜品项 -->
-        <view v-for="item in filteredItems" :key="item.id" class="food-item glass-card">
-          <!-- 菜品基本信息 -->
-          <view class="item-main">
-            <view class="item-icon">{{ item.icon }}</view>
-            <view class="item-details">
-              <view class="item-name">{{ item.name }}</view>
-              <view class="item-meta">
-                <text class="meta-tag">{{ getCategoryLabel(item.category) }}</text>
-                <text class="meta-tag">
-                  <span v-for="i in item.difficulty" :key="i">⭐</span>
-                </text>
-                <text v-if="item.isTakeout" class="meta-tag takeout">🛵 可外卖</text>
-              </view>
-              <view v-if="item.tags && item.tags.length > 0" class="item-tags">
-                <text v-for="tag in item.tags" :key="tag" class="tag-badge">{{ tag }}</text>
+        <!-- 菜品项 - 支持左滑删除 -->
+        <view 
+          v-for="item in filteredItems" 
+          :key="item.id" 
+          class="food-item-wrapper"
+          :data-id="item.id"
+        >
+          <!-- 删除按钮背景层 -->
+          <view class="delete-bg" @click="deleteItem(item.id)">
+            <view class="delete-icon">🗑️</view>
+            <view class="delete-text">删除</view>
+          </view>
+          
+          <!-- 菜品卡片 - 可滑动 -->
+          <view 
+            class="food-item glass-card"
+            :style="getSwipeStyle(item.id)"
+            @touchstart="handleTouchStart($event, item.id)"
+            @touchmove="handleTouchMove($event, item.id)"
+            @touchend="handleTouchEnd($event, item.id)"
+            @click="handleItemClick(item.id)"
+          >
+            <!-- 菜品基本信息 -->
+            <view class="item-main">
+              <view class="item-icon">{{ item.icon }}</view>
+              <view class="item-details">
+                <view class="item-name">{{ item.name }}</view>
+                <view class="item-meta">
+                  <text class="meta-tag">{{ getCategoryLabel(item.category) }}</text>
+                  <text class="meta-tag">
+                    <span v-for="i in item.difficulty" :key="i">⭐</span>
+                  </text>
+                  <text v-if="item.isTakeout" class="meta-tag takeout">🛵 可外卖</text>
+                </view>
+                <view v-if="item.tags && item.tags.length > 0" class="item-tags">
+                  <text v-for="tag in item.tags" :key="tag" class="tag-badge">{{ tag }}</text>
+                </view>
               </view>
             </view>
-          </view>
 
-          <!-- 操作按钮 -->
-          <view class="item-actions">
-            <button class="action-btn edit-btn" @click="editItem(item)">✏️</button>
-            <button class="action-btn delete-btn" @click="deleteItem(item.id)">🗑️</button>
+            <!-- 编辑按钮 -->
+            <view class="item-actions">
+              <button class="action-btn edit-btn" @click.stop="editItem(item)">✏️</button>
+            </view>
           </view>
         </view>
       </view>
@@ -207,6 +227,103 @@ const editingItem = ref<FoodItem | null>(null);
 const itemToDelete = ref<string | null>(null);
 const newTag = ref('');
 
+// 滑动删除相关
+const swipeState = ref<Record<string, {
+  startX: number;
+  currentX: number;
+  isOpen: boolean;
+}>>({});
+const SWIPE_THRESHOLD = 80; // 滑动阈值
+const MAX_SWIPE = 140; // 最大滑动距离
+
+// 获取滑动样式
+const getSwipeStyle = (itemId: string) => {
+  const state = swipeState.value[itemId];
+  if (!state) return {};
+  const translateX = state.isOpen ? -MAX_SWIPE : Math.min(0, Math.max(-MAX_SWIPE, state.currentX - state.startX));
+  return {
+    transform: `translateX(${translateX}px)`,
+    transition: state.isOpen || translateX === 0 ? 'transform 0.3s ease' : 'none'
+  };
+};
+
+// 处理触摸开始
+const handleTouchStart = (event: TouchEvent, itemId: string) => {
+  const touch = event.touches[0];
+  if (!swipeState.value[itemId]) {
+    swipeState.value[itemId] = { startX: touch.clientX, currentX: touch.clientX, isOpen: false };
+  } else {
+    swipeState.value[itemId].startX = touch.clientX;
+    swipeState.value[itemId].currentX = touch.clientX;
+  }
+};
+
+// 处理触摸移动
+const handleTouchMove = (event: TouchEvent, itemId: string) => {
+  const touch = event.touches[0];
+  const state = swipeState.value[itemId];
+  if (!state) return;
+  
+  const deltaX = touch.clientX - state.startX;
+  
+  // 如果已经打开，只能向右滑关闭
+  if (state.isOpen) {
+    if (deltaX > 0) {
+      state.currentX = state.startX + deltaX - MAX_SWIPE;
+    }
+  } else {
+    // 只能向左滑
+    if (deltaX < 0) {
+      state.currentX = touch.clientX;
+    }
+  }
+};
+
+// 处理触摸结束
+const handleTouchEnd = (event: TouchEvent, itemId: string) => {
+  const state = swipeState.value[itemId];
+  if (!state) return;
+  
+  const deltaX = state.currentX - state.startX;
+  
+  // 关闭其他项的滑动状态
+  Object.keys(swipeState.value).forEach(id => {
+    if (id !== itemId) {
+      swipeState.value[id].isOpen = false;
+    }
+  });
+  
+  if (state.isOpen) {
+    // 如果已经打开，向右滑动超过阈值则关闭
+    if (deltaX > SWIPE_THRESHOLD * 0.5) {
+      state.isOpen = false;
+    } else {
+      state.isOpen = true;
+    }
+  } else {
+    // 如果未打开，向左滑动超过阈值则打开
+    if (deltaX < -SWIPE_THRESHOLD) {
+      state.isOpen = true;
+    } else {
+      state.isOpen = false;
+    }
+  }
+  
+  state.startX = 0;
+  state.currentX = 0;
+};
+
+// 处理菜品点击
+const handleItemClick = (itemId: string) => {
+  // 如果有打开的滑动项，先关闭
+  const hasOpenItem = Object.values(swipeState.value).some(s => s.isOpen);
+  if (hasOpenItem) {
+    Object.keys(swipeState.value).forEach(id => {
+      swipeState.value[id].isOpen = false;
+    });
+  }
+};
+
 // 表单数据
 const formData = ref<{
   name: string;
@@ -331,11 +448,28 @@ const submitForm = () => {
 
 // 删除菜品
 const deleteItem = (id: string) => {
-  itemToDelete.value = id;
-  showDeleteConfirm.value = true;
+  // 关闭滑动状态
+  if (swipeState.value[id]) {
+    swipeState.value[id].isOpen = false;
+  }
+  
+  uni.showModal({
+    title: '🗑️ 确认删除',
+    content: '确定要删除这道菜品吗？此操作不可撤销。',
+    confirmText: '删除',
+    cancelText: '取消',
+    confirmColor: '#f5576c',
+    success: (res) => {
+      if (res.confirm) {
+        MenuAPI.delete(id);
+        uni.showToast({ title: '菜品已删除', icon: 'success' });
+        refreshItems();
+      }
+    }
+  });
 };
 
-// 确认删除
+// 确认删除（兼容旧版弹窗）
 const confirmDelete = () => {
   if (itemToDelete.value) {
     MenuAPI.delete(itemToDelete.value);
@@ -440,23 +574,26 @@ onMounted(() => {
 
 .back-btn,
 .add-btn {
-  width: 60rpx;
-  height: 60rpx;
+  width: 70rpx;
+  height: 70rpx;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32rpx;
+  font-size: 36rpx;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1rpx solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
 }
 
-.back-btn:hover,
-.add-btn:hover {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.4);
+.back-btn:active,
+.add-btn:active {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: scale(0.95);
 }
 
 /* 分类筛选 */
@@ -494,6 +631,53 @@ onMounted(() => {
   gap: 20rpx;
 }
 
+/* 菜品项包装器 - 用于滑动删除 */
+.food-item-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24rpx;
+}
+
+/* 删除按钮背景 */
+.delete-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 140rpx;
+  background: linear-gradient(135deg, #f5576c, #e53e3e);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  cursor: pointer;
+  border-radius: 0 24rpx 24rpx 0;
+}
+
+.delete-icon {
+  font-size: 40rpx;
+}
+
+.delete-text {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* 菜品项 - 可滑动 */
+.food-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 25rpx;
+  gap: 20rpx;
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.05) !important;
+  transition: transform 0.3s ease;
+}
+
 /* 空状态 */
 .empty-state {
   display: flex;
@@ -520,21 +704,7 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* 菜品项 */
-.food-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 25rpx;
-  gap: 20rpx;
-  transition: all 0.3s ease;
-}
-
-.food-item:hover {
-  transform: translateY(-5rpx);
-  box-shadow: 0 12rpx 40rpx rgba(102, 126, 234, 0.25);
-  border-color: rgba(102, 126, 234, 0.3);
-}
+/* 菜品项已移动到滑动容器内定义 */
 
 /* 菜品主体 */
 .item-main {
