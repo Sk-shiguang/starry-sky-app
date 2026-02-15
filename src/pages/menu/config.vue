@@ -53,10 +53,12 @@
           <!-- 菜品卡片 - 可滑动 -->
           <view 
             class="food-item glass-card"
+            :class="{ 'is-swiping': swipeState[item.id]?.startX !== 0 }"
             :style="getSwipeStyle(item.id)"
             @touchstart="handleTouchStart($event, item.id)"
             @touchmove="handleTouchMove($event, item.id)"
             @touchend="handleTouchEnd($event, item.id)"
+            @touchcancel="handleTouchCancel($event, item.id)"
             @click="handleItemClick(item.id)"
           >
             <!-- 菜品基本信息 -->
@@ -227,34 +229,73 @@ const editingItem = ref<FoodItem | null>(null);
 const itemToDelete = ref<string | null>(null);
 const newTag = ref('');
 
-// 滑动删除相关
-const swipeState = ref<Record<string, {
+// 滑动删除相关 - 优化版
+interface SwipeItemState {
   startX: number;
   currentX: number;
   isOpen: boolean;
-}>>({});
-const SWIPE_THRESHOLD = 80; // 滑动阈值
+  startY: number;
+  isScrolling: boolean | null;
+}
+
+const swipeState = ref<Record<string, SwipeItemState>>({});
+const SWIPE_THRESHOLD = 60; // 滑动阈值（减小以提高灵敏度）
 const MAX_SWIPE = 140; // 最大滑动距离
+const SCROLL_THRESHOLD = 10; // 垂直滚动阈值
 
 // 获取滑动样式
 const getSwipeStyle = (itemId: string) => {
   const state = swipeState.value[itemId];
   if (!state) return {};
-  const translateX = state.isOpen ? -MAX_SWIPE : Math.min(0, Math.max(-MAX_SWIPE, state.currentX - state.startX));
+  
+  let translateX = 0;
+  
+  if (state.isOpen) {
+    translateX = -MAX_SWIPE;
+  } else if (state.startX !== 0) {
+    const deltaX = state.currentX - state.startX;
+    // 只能向左滑动，限制最大滑动距离
+    translateX = Math.min(0, Math.max(-MAX_SWIPE, deltaX));
+  }
+  
+  const isAnimating = state.isOpen || (!state.startX && translateX === 0);
+  
   return {
-    transform: `translateX(${translateX}px)`,
-    transition: state.isOpen || translateX === 0 ? 'transform 0.3s ease' : 'none'
+    transform: `translateX(${translateX}rpx)`,
+    transition: isAnimating ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
   };
+};
+
+// 关闭所有已打开的滑动项
+const closeAllSwipeItems = (exceptId?: string) => {
+  Object.keys(swipeState.value).forEach(id => {
+    if (id !== exceptId && swipeState.value[id].isOpen) {
+      swipeState.value[id].isOpen = false;
+    }
+  });
 };
 
 // 处理触摸开始
 const handleTouchStart = (event: TouchEvent, itemId: string) => {
   const touch = event.touches[0];
+  
+  // 关闭其他已打开的项
+  closeAllSwipeItems(itemId);
+  
   if (!swipeState.value[itemId]) {
-    swipeState.value[itemId] = { startX: touch.clientX, currentX: touch.clientX, isOpen: false };
+    swipeState.value[itemId] = { 
+      startX: touch.clientX, 
+      currentX: touch.clientX, 
+      isOpen: false,
+      startY: touch.clientY,
+      isScrolling: null
+    };
   } else {
-    swipeState.value[itemId].startX = touch.clientX;
-    swipeState.value[itemId].currentX = touch.clientX;
+    const state = swipeState.value[itemId];
+    state.startX = touch.clientX;
+    state.currentX = touch.clientX;
+    state.startY = touch.clientY;
+    state.isScrolling = null;
   }
 };
 
@@ -262,66 +303,77 @@ const handleTouchStart = (event: TouchEvent, itemId: string) => {
 const handleTouchMove = (event: TouchEvent, itemId: string) => {
   const touch = event.touches[0];
   const state = swipeState.value[itemId];
-  if (!state) return;
+  if (!state || state.startX === 0) return;
   
   const deltaX = touch.clientX - state.startX;
+  const deltaY = touch.clientY - state.startY;
   
-  // 如果已经打开，只能向右滑关闭
-  if (state.isOpen) {
-    if (deltaX > 0) {
-      state.currentX = state.startX + deltaX - MAX_SWIPE;
-    }
-  } else {
-    // 只能向左滑
-    if (deltaX < 0) {
-      state.currentX = touch.clientX;
-    }
+  // 判断滑动方向（仅在开始时判断一次）
+  if (state.isScrolling === null) {
+    state.isScrolling = Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > SCROLL_THRESHOLD;
   }
+  
+  // 如果是垂直滚动，不处理水平滑动
+  if (state.isScrolling) return;
+  
+  // 阻止默认行为，防止页面滚动
+  if (Math.abs(deltaX) > SCROLL_THRESHOLD) {
+    event.preventDefault();
+  }
+  
+  // 更新当前位置
+  state.currentX = touch.clientX;
 };
 
 // 处理触摸结束
 const handleTouchEnd = (event: TouchEvent, itemId: string) => {
   const state = swipeState.value[itemId];
-  if (!state) return;
+  if (!state || state.startX === 0) return;
+  
+  // 如果是垂直滚动，忽略此次滑动
+  if (state.isScrolling) {
+    state.startX = 0;
+    state.currentX = 0;
+    state.isScrolling = null;
+    return;
+  }
   
   const deltaX = state.currentX - state.startX;
   
-  // 关闭其他项的滑动状态
-  Object.keys(swipeState.value).forEach(id => {
-    if (id !== itemId) {
-      swipeState.value[id].isOpen = false;
-    }
-  });
-  
   if (state.isOpen) {
     // 如果已经打开，向右滑动超过阈值则关闭
-    if (deltaX > SWIPE_THRESHOLD * 0.5) {
+    if (deltaX > SWIPE_THRESHOLD * 0.6) {
       state.isOpen = false;
-    } else {
-      state.isOpen = true;
     }
   } else {
     // 如果未打开，向左滑动超过阈值则打开
     if (deltaX < -SWIPE_THRESHOLD) {
       state.isOpen = true;
-    } else {
-      state.isOpen = false;
     }
   }
   
+  // 重置状态
   state.startX = 0;
   state.currentX = 0;
+  state.startY = 0;
+  state.isScrolling = null;
+};
+
+// 处理触摸取消
+const handleTouchCancel = (event: TouchEvent, itemId: string) => {
+  const state = swipeState.value[itemId];
+  if (!state) return;
+  
+  state.startX = 0;
+  state.currentX = 0;
+  state.startY = 0;
+  state.isScrolling = null;
 };
 
 // 处理菜品点击
 const handleItemClick = (itemId: string) => {
-  // 如果有打开的滑动项，先关闭
-  const hasOpenItem = Object.values(swipeState.value).some(s => s.isOpen);
-  if (hasOpenItem) {
-    Object.keys(swipeState.value).forEach(id => {
-      swipeState.value[id].isOpen = false;
-    });
-  }
+  // 关闭所有已打开的滑动项
+  closeAllSwipeItems();
 };
 
 // 表单数据
@@ -462,6 +514,8 @@ const deleteItem = (id: string) => {
     success: (res) => {
       if (res.confirm) {
         MenuAPI.delete(id);
+        // 清理该项目的滑动状态
+        delete swipeState.value[id];
         uni.showToast({ title: '菜品已删除', icon: 'success' });
         refreshItems();
       }
@@ -574,26 +628,41 @@ onMounted(() => {
 
 .back-btn,
 .add-btn {
-  width: 70rpx;
-  height: 70rpx;
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 36rpx;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.25), inset 0 1rpx 0 rgba(255, 255, 255, 0.1);
+}
+
+.back-btn {
+  font-weight: bold;
+  font-size: 40rpx;
+  padding-bottom: 4rpx;
 }
 
 .back-btn:active,
 .add-btn:active {
-  background: rgba(102, 126, 234, 0.3);
-  border-color: rgba(102, 126, 234, 0.5);
-  transform: scale(0.95);
+  background: rgba(102, 126, 234, 0.35);
+  border-color: rgba(102, 126, 234, 0.6);
+  transform: scale(0.92);
+}
+
+.back-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  pointer-events: none;
 }
 
 /* 分类筛选 */
@@ -653,10 +722,20 @@ onMounted(() => {
   gap: 8rpx;
   cursor: pointer;
   border-radius: 0 24rpx 24rpx 0;
+  transition: all 0.2s ease;
+}
+
+.delete-bg:active {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
 }
 
 .delete-icon {
-  font-size: 40rpx;
+  font-size: 44rpx;
+  transition: transform 0.2s ease;
+}
+
+.delete-bg:active .delete-icon {
+  transform: scale(0.9);
 }
 
 .delete-text {
@@ -675,7 +754,24 @@ onMounted(() => {
   position: relative;
   z-index: 2;
   background: rgba(255, 255, 255, 0.05) !important;
-  transition: transform 0.3s ease;
+  will-change: transform;
+  touch-action: pan-y;
+}
+
+/* 滑动时的视觉反馈 */
+.food-item.is-swiping {
+  opacity: 0.95;
+}
+
+/* 滑动操作提示 */
+.swipe-hint {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
 }
 
 /* 空状态 */
