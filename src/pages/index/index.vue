@@ -1,5 +1,6 @@
 <template>
-  <view class="index-page">
+  <PageTransition type="fade" :duration="400" :show-skeleton="loading" :skeleton-props="skeletonProps">
+    <view class="index-page">
     <!-- 动态星轨背景 -->
     <view class="star-trails">
       <view class="trail trail-1"></view>
@@ -166,11 +167,21 @@
     <!-- 底部占位 -->
     <view class="bottom-space"></view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
+
+// 加载状态和骨架屏配置
+const loading = ref(true)
+const skeletonProps = {
+  animated: true,
+  showCard: true,
+  showGrid: true
+}
 
 // 用户信息
 const isLogin = ref(false)
@@ -236,6 +247,11 @@ const goToGenerate = (destination: string) => {
 }
 
 onMounted(() => {
+  // 模拟加载数据
+  setTimeout(() => {
+    loading.value = false
+  }, 600)
+  
   // 检查登录状态
   const token = uni.getStorageSync('token')
   if (token) {

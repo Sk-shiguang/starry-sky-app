@@ -1,5 +1,6 @@
 <template>
-  <view class="guide-detail-page">
+  <PageTransition type="slide-up" :duration="400" :show-skeleton="loading" :skeleton-props="skeletonProps">
+    <view class="guide-detail-page">
     <StarBackground />
     
     <!-- 返回按钮 -->
@@ -89,18 +90,32 @@
       </view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 const guide = ref<any>(null)
+const loading = ref(true)
+const skeletonProps = {
+  animated: true,
+  showTitle: true,
+  showParagraph: true,
+  showCard: true,
+  paragraphLines: 5
+}
 
 onMounted(() => {
   const currentGuide = uni.getStorageSync('currentGuide')
   if (currentGuide) {
     guide.value = currentGuide
+    // 模拟加载延迟后隐藏骨架屏
+    setTimeout(() => {
+      loading.value = false
+    }, 500)
   } else {
     uni.showToast({ title: '攻略不存在', icon: 'none' })
     setTimeout(() => {

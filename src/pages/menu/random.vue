@@ -1,5 +1,6 @@
 <template>
-  <view class="random-page">
+  <PageTransition type="slide-up" :duration="400">
+    <view class="random-page">
     <!-- 星轨背景 -->
     <view class="star-trails">
       <view class="trail trail-1"></view>
@@ -91,10 +92,12 @@
       </view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import PageTransition from '@/components/PageTransition.vue';
 import MenuAPI, { type FoodItem } from '../../api/menu';
 
 // 数据状态

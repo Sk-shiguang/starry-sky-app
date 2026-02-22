@@ -1,5 +1,6 @@
 <template>
-  <view class="config-page">
+  <PageTransition type="slide-right" :duration="400" :show-skeleton="loading" :skeleton-props="skeletonProps">
+    <view class="config-page">
     <!-- 星轨背景 -->
     <view class="star-trails">
       <view class="trail trail-1"></view>
@@ -195,11 +196,21 @@
       </view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import PageTransition from '@/components/PageTransition.vue';
 import MenuAPI, { type FoodItem } from '../../api/menu';
+
+// 加载状态和骨架屏配置
+const loading = ref(true);
+const skeletonProps = {
+  animated: true,
+  showList: true,
+  listCount: 6
+};
 
 // 分类定义
 const categories = [
@@ -543,6 +554,10 @@ const goBack = () => {
 onMounted(() => {
   MenuAPI.initDefaultItems();
   refreshItems();
+  // 模拟加载延迟后隐藏骨架屏
+  setTimeout(() => {
+    loading.value = false;
+  }, 600);
 });
 </script>
 

@@ -1,5 +1,6 @@
 <template>
-  <view class="guide-generator-page">
+  <PageTransition type="slide-up" :duration="400">
+    <view class="guide-generator-page">
     <StarBackground />
     
     <!-- 返回按钮 -->
@@ -221,11 +222,13 @@
       </view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 const guideType = ref<'travel' | 'food'>('travel')
 const keyword = ref('')

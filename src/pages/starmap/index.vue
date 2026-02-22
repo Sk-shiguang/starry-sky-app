@@ -1,5 +1,6 @@
 <template>
-  <view class="starmap-page">
+  <PageTransition type="scale" :duration="500">
+    <view class="starmap-page">
     <StarBackground />
     
     <!-- 返回按钮 -->
@@ -123,11 +124,13 @@
       </scroll-view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 const location = ref('北京市')
 const currentTime = ref('')

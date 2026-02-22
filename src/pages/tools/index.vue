@@ -1,15 +1,16 @@
 <template>
-  <view class="tools-page">
+  <PageTransition type="fade" :duration="400">
+    <view class="tools-page">
     <StarBackground />
     
     <!-- 页面标题 -->
-    <view class="page-header" :style="headerStyle">
+    <view class="page-header" :class="{ 'header-visible': animationState.header }">
       <text class="page-title">探索工具</text>
       <text class="page-subtitle">发现更多有趣功能</text>
     </view>
     
     <!-- 搜索栏 -->
-    <view class="search-bar glass-card" :style="searchStyle">
+    <view class="search-bar glass-card" :class="{ 'search-visible': animationState.search }">
       <text class="search-icon">🔍</text>
       <input 
         class="search-input"
@@ -20,10 +21,11 @@
         @focus="searchFocused = true"
         @blur="searchFocused = false"
       />
+      <text v-if="searchKey" class="clear-icon" @click="searchKey = ''">✕</text>
     </view>
     
     <!-- 核心功能：AI攻略 -->
-    <view class="feature-section" :style="featureStyle">
+    <view class="feature-section" :class="{ 'section-visible': animationState.feature }">
       <view class="section-header">
         <text class="section-icon">✨</text>
         <text class="section-name">AI 攻略</text>
@@ -56,34 +58,25 @@
       <!-- 子功能按钮组 -->
       <view class="sub-features">
         <view 
+          v-for="(item, idx) in subFeatures" 
+          :key="item.key"
           class="sub-feature glass-card" 
-          :class="{ 'card-pressed': pressedCard === 'guides' }"
-          @touchstart="pressedCard = 'guides'"
+          :class="{ 'card-pressed': pressedCard === item.key, 'sub-visible': animationState.subFeatures }"
+          :style="{ animationDelay: `${idx * 0.1}s` }"
+          @touchstart="pressedCard = item.key"
           @touchend="pressedCard = ''"
-          @click="openTool({path: '/pages/my-guides/index', name: '我的攻略'})"
+          @click="openTool(item)"
         >
-          <view class="sub-icon-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
-            <text class="sub-icon">📚</text>
+          <view class="sub-icon-wrapper" :style="{ background: item.gradient }">
+            <text class="sub-icon">{{ item.icon }}</text>
           </view>
-          <text class="sub-name">我的攻略</text>
-        </view>
-        <view 
-          class="sub-feature glass-card"
-          :class="{ 'card-pressed': pressedCard === 'menu' }"
-          @touchstart="pressedCard = 'menu'"
-          @touchend="pressedCard = ''"
-          @click="openTool({path: '/pages/menu/index', name: '今天吃什么'})"
-        >
-          <view class="sub-icon-wrapper" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
-            <text class="sub-icon">🍜</text>
-          </view>
-          <text class="sub-name">美食探店</text>
+          <text class="sub-name">{{ item.name }}</text>
         </view>
       </view>
     </view>
     
     <!-- 天文观测分类 -->
-    <view class="category-section" :style="astroStyle">
+    <view class="category-section" :class="{ 'section-visible': animationState.astro }">
       <view class="category-header">
         <text class="category-icon">🔭</text>
         <text class="category-name">天文观测</text>
@@ -94,8 +87,11 @@
           v-for="(tool, index) in filteredAstroTools" 
           :key="tool.id"
           class="tool-card glass-card"
-          :class="{ 'card-pressed': pressedCard === 'astro-' + tool.id }"
-          :style="{ animationDelay: (0.3 + index * 0.05) + 's' }"
+          :class="{ 
+            'card-pressed': pressedCard === 'astro-' + tool.id,
+            'card-visible': animationState.cards
+          }"
+          :style="{ animationDelay: `${0.3 + index * 0.08}s` }"
           @touchstart="pressedCard = 'astro-' + tool.id"
           @touchend="pressedCard = ''"
           @click="openTool(tool)"
@@ -110,7 +106,7 @@
     </view>
     
     <!-- 实用工具分类 -->
-    <view class="category-section" :style="utilityStyle">
+    <view class="category-section" :class="{ 'section-visible': animationState.utility }">
       <view class="category-header">
         <text class="category-icon">🛠️</text>
         <text class="category-name">实用工具</text>
@@ -121,8 +117,11 @@
           v-for="(tool, index) in filteredUtilityTools" 
           :key="tool.id"
           class="tool-card glass-card"
-          :class="{ 'card-pressed': pressedCard === 'utility-' + tool.id }"
-          :style="{ animationDelay: (0.4 + index * 0.05) + 's' }"
+          :class="{ 
+            'card-pressed': pressedCard === 'utility-' + tool.id,
+            'card-visible': animationState.cards
+          }"
+          :style="{ animationDelay: `${0.5 + index * 0.08}s` }"
           @touchstart="pressedCard = 'utility-' + tool.id"
           @touchend="pressedCard = ''"
           @click="openTool(tool)"
@@ -140,22 +139,46 @@
     <!-- 底部占位 -->
     <view class="bottom-space"></view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 const searchKey = ref('')
 const searchFocused = ref(false)
 const pressedCard = ref('')
 
-// 入场动画状态
-const headerStyle = ref('opacity: 0; transform: translateY(30rpx) scale(0.9);')
-const searchStyle = ref('opacity: 0; transform: translateY(30rpx) scale(0.9);')
-const featureStyle = ref('opacity: 0; transform: translateY(30rpx) scale(0.9);')
-const astroStyle = ref('opacity: 0; transform: translateY(30rpx) scale(0.9);')
-const utilityStyle = ref('opacity: 0; transform: translateY(30rpx) scale(0.9);')
+// 动画状态
+const animationState = ref({
+  header: false,
+  search: false,
+  feature: false,
+  subFeatures: false,
+  astro: false,
+  utility: false,
+  cards: false
+})
+
+// 子功能
+const subFeatures = [
+  {
+    key: 'guides',
+    name: '我的攻略',
+    icon: '📚',
+    path: '/pages/my-guides/index',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  },
+  {
+    key: 'menu',
+    name: '美食探店',
+    icon: '🍜',
+    path: '/pages/menu/index',
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+  }
+]
 
 // 天文工具
 const astroTools = ref([
@@ -224,30 +247,61 @@ const utilityTools = ref([
 // 搜索过滤
 const filteredAstroTools = computed(() => {
   if (!searchKey.value) return astroTools.value
-  return astroTools.value.filter(t => t.name.includes(searchKey.value) || t.desc.includes(searchKey.value))
+  return astroTools.value.filter(t => 
+    t.name.includes(searchKey.value) || t.desc.includes(searchKey.value)
+  )
 })
 
 const filteredUtilityTools = computed(() => {
   if (!searchKey.value) return utilityTools.value
-  return utilityTools.value.filter(t => t.name.includes(searchKey.value) || t.desc.includes(searchKey.value))
+  return utilityTools.value.filter(t => 
+    t.name.includes(searchKey.value) || t.desc.includes(searchKey.value)
+  )
 })
 
 // 打开工具
 const openTool = (tool: any) => {
   if (!tool.path) {
-    uni.showToast({ title: '功能开发中', icon: 'none' })
+    // 未开发功能提示
+    uni.showToast({ 
+      title: '功能开发中，敬请期待',
+      icon: 'none',
+      duration: 2000
+    })
     return
   }
-  uni.navigateTo({ url: tool.path })
+  
+  // 添加触觉反馈
+  uni.vibrateShort({ type: 'light' }).catch(() => {})
+  
+  uni.navigateTo({ 
+    url: tool.path,
+    animationType: 'slide-in-right',
+    animationDuration: 300
+  })
 }
 
 // 入场动画序列
+const startAnimationSequence = () => {
+  const delays = {
+    header: 100,
+    search: 200,
+    feature: 300,
+    subFeatures: 400,
+    astro: 500,
+    utility: 600,
+    cards: 500
+  }
+  
+  Object.entries(delays).forEach(([key, delay]) => {
+    setTimeout(() => {
+      animationState.value[key as keyof typeof animationState.value] = true
+    }, delay)
+  })
+}
+
 onMounted(() => {
-  setTimeout(() => { headerStyle.value = 'transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); opacity: 1; transform: translateY(0) scale(1);' }, 100)
-  setTimeout(() => { searchStyle.value = 'transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); opacity: 1; transform: translateY(0) scale(1);' }, 200)
-  setTimeout(() => { featureStyle.value = 'transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); opacity: 1; transform: translateY(0) scale(1);' }, 300)
-  setTimeout(() => { astroStyle.value = 'transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); opacity: 1; transform: translateY(0) scale(1);' }, 400)
-  setTimeout(() => { utilityStyle.value = 'transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); opacity: 1; transform: translateY(0) scale(1);' }, 500)
+  startAnimationSequence()
 })
 </script>
 
@@ -266,14 +320,21 @@ onMounted(() => {
   border: 1rpx solid rgba(255, 255, 255, 0.1);
   border-radius: 24rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3), inset 0 1rpx 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* 页面标题 */
 .page-header {
   margin-top: 60rpx;
   margin-bottom: 30rpx;
-  will-change: opacity, transform;
+  opacity: 0;
+  transform: translateY(30rpx);
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.header-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .page-title {
@@ -296,12 +357,20 @@ onMounted(() => {
   align-items: center;
   padding: 20rpx 30rpx;
   margin-bottom: 40rpx;
-  will-change: opacity, transform;
+  opacity: 0;
+  transform: translateY(30rpx);
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.search-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .search-bar:focus-within {
   border-color: rgba(102, 126, 234, 0.5);
   box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.2), inset 0 1rpx 0 rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
 }
 
 .search-icon {
@@ -321,10 +390,23 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.4);
 }
 
+.clear-icon {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 10rpx;
+}
+
 /* 核心功能区 */
 .feature-section {
   margin-bottom: 50rpx;
-  will-change: opacity, transform;
+  opacity: 0;
+  transform: translateY(30rpx);
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.section-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .section-header {
@@ -350,7 +432,7 @@ onMounted(() => {
   border-radius: 24rpx;
   overflow: hidden;
   margin-bottom: 20rpx;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .main-feature {
@@ -385,7 +467,7 @@ onMounted(() => {
 }
 
 .card-pressed {
-  transform: scale(0.98) !important;
+  transform: scale(0.96) !important;
 }
 
 .feature-card:active {
@@ -503,11 +585,18 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   padding: 30rpx;
-  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20rpx);
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.sub-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .sub-feature:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -520,6 +609,11 @@ onMounted(() => {
   justify-content: center;
   margin-bottom: 15rpx;
   box-shadow: 0 8rpx 25rpx rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.sub-feature:active .sub-icon-wrapper {
+  transform: scale(0.95);
 }
 
 .sub-icon {
@@ -535,7 +629,9 @@ onMounted(() => {
 /* 分类区 */
 .category-section {
   margin-bottom: 40rpx;
-  will-change: opacity, transform;
+  opacity: 0;
+  transform: translateY(30rpx);
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .category-header {
@@ -566,11 +662,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(30rpx) scale(0.95);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.card-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .tool-card:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(102, 126, 234, 0.3);
 }

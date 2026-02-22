@@ -1,5 +1,6 @@
 <template>
-  <view class="login-page">
+  <PageTransition type="slide-up" :duration="400">
+    <view class="login-page">
     <StarBackground />
     
     <!-- 返回按钮 -->
@@ -129,11 +130,13 @@
       <view class="star-line"></view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 // 登录类型
 const loginType = ref<'wechat' | 'phone'>('wechat')

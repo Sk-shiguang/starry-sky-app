@@ -1,5 +1,6 @@
 <template>
-  <view class="user-page">
+  <PageTransition type="fade" :duration="400">
+    <view class="user-page">
     <StarBackground />
     
     <!-- 顶部发光背景 -->
@@ -166,11 +167,13 @@
     
     <view class="bottom-space"></view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 // 用户状态
 const isLogin = ref(false)

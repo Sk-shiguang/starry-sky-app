@@ -1,5 +1,6 @@
 <template>
-  <view class="moon-page">
+  <PageTransition type="scale" :duration="500">
+    <view class="moon-page">
     <StarBackground />
     
     <!-- 返回按钮 -->
@@ -149,11 +150,13 @@
       </view>
     </view>
   </view>
+  </PageTransition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StarBackground from '@/components/StarBackground.vue'
+import PageTransition from '@/components/PageTransition.vue'
 
 // 当前日期
 const today = new Date()
